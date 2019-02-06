@@ -32,16 +32,16 @@ def weights_init(init_type='gaussian'):
 
 class VGG16FeatureExtractor(nn.Module):
     def __init__(self):
-        super().__init__()
-        vgg16 = models.vgg16(pretrained=False)
+        super(VGG16FeatureExtractor, self).__init__()
+        vgg16 = models.vgg16(pretrained=True)
 
         self.enc_1 = nn.Sequential(*vgg16.features[:5])
         self.enc_2 = nn.Sequential(*vgg16.features[5:10])
         self.enc_3 = nn.Sequential(*vgg16.features[10:17])
 
-        print(self.enc_1)
-        print(self.enc_2)
-        print(self.enc_3)
+        # print(self.enc_1)
+        # print(self.enc_2)
+        # print(self.enc_3)
 
         # fix the encoder
         for i in range(3):
@@ -49,37 +49,8 @@ class VGG16FeatureExtractor(nn.Module):
                 param.requires_grad = False
 
     def forward(self, image):
-        results = [image]
-        for i in range(3):
-            func = getattr(self, 'enc_{:d}'.format(i + 1))
-            results.append(func(results[-1]))
-        return results[1:]
 
-################################################################################
 
-class VGG19FeatureExtractor(nn.Module):
-    def __init__(self):
-        super(VGG19FeatureExtractor, self).__init__()
-        vgg16 = models.vgg19(pretrained=False)
-
-        self.enc_1 = nn.Sequential(*vgg16.features[:5])
-        self.enc_2 = nn.Sequential(*vgg16.features[5:10])
-        self.enc_3 = nn.Sequential(*vgg16.features[10:19])
-        self.enc_4 = nn.Sequential(*vgg16.features[19:28])
-        self.enc_5 = nn.Sequential(*vgg16.features[28:37])
-
-        print(self.enc_1)
-        print(self.enc_2)
-        print(self.enc_3)
-        print(self.enc_4)
-        print(self.enc_5)
-
-        # fix the encoder
-        for i in range(3):
-            for param in getattr(self, 'enc_{:d}'.format(i + 1)).parameters():
-                param.requires_grad = False
-
-    def forward(self, image):
         results = [image]
         for i in range(3):
             func = getattr(self, 'enc_{:d}'.format(i + 1))
@@ -213,9 +184,9 @@ class PConvUNet(nn.Module):
 ################################################################################
 
 # if __name__ == '__main__':
-    # vgg16 = VGG16FeatureExtractor()
-    # x = torch.FloatTensor( np.random.random((1, 3, 224, 224))) # (batch_size, channels, width, height)
-    # out = vgg16(x)
+    vgg16 = VGG16FeatureExtractor()
+    x = torch.FloatTensor( np.random.random((1, 3, 224, 224))) # (batch_size, channels, width, height)
+    out = vgg16(x)
 
     # model = PConvUNet()
     # input = torch.FloatTensor( np.random.random((1, 3, 256, 256))) # (batch_size, channels, height, width)

@@ -1,6 +1,6 @@
 # coding: utf-8
 import torch
-import torch.nn
+import torch.nn as nn
 
 def gram_matrix(feat):
     (batch, ch, h, w) = feat.size()
@@ -18,7 +18,7 @@ def total_variation_loss(image):
 
 class InpaintingLoss(nn.Module):
     def __init__(self, extractor): # extractor = VGG16
-        super(self, InpaintingLoss).__init__()
+        super(InpaintingLoss, self).__init__()
         self.l1 = nn.L1Loss()
         self.extractor = extractor
 
@@ -55,3 +55,15 @@ class InpaintingLoss(nn.Module):
         loss_dict['tv'] = total_variation_loss(output_comp)
 
         return loss_dict
+
+if __name__ == '__main__':
+    import numpy as np
+    import torch
+    from networks import VGG16FeatureExtractor
+    size = 256
+    img = torch.FloatTensor( np.random.random((1, 3, size, size))) # (batch_size, channels, width, height)
+    mask = torch.FloatTensor( np.random.random((1, 3, size, size))) # (batch_size, channels, width, height)
+    output = torch.FloatTensor( np.random.random((1, 3, size, size))) # (batch_size, channels, width, height)
+    gt = torch.FloatTensor( np.random.random((1, 3, size, size))) # (batch_size, channels, width, height)
+    criterion = InpaintingLoss(VGG16FeatureExtractor())
+    loss_dict = criterion(img, mask, output, gt)
